@@ -18,5 +18,6 @@ export const s = StyleSheet.create({
   },
   cardItem: {
     marginBottom: 15,
+    marginHorizontal: 2,
   },
 });

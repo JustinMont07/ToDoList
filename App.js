@@ -2,24 +2,21 @@ import { ScrollView, Text, View, Alert } from "react-native";
 import { useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { s } from "./App.style";
+import Dialog from "react-native-dialog";
 import { Header } from "./components/Header/Header";
 import { Card } from "./components/Card/Card";
 import { Footer } from "./components/Footer/Footer";
+import { AddButton } from "./components/AddButton/AddButton";
+import uuid from "react-native-uuid";
+
 export default function App() {
-  const [toDoList, setToDoList] = useState([
-    { id: 1, title: "Buy milk", done: true },
-    { id: 2, title: "Call mom", done: false },
-    { id: 3, title: "Go to the gym", done: true },
-    { id: 4, title: "Buy milk", done: true },
-    { id: 5, title: "Call mom", done: false },
-    { id: 6, title: "Go to the gym", done: true },
-    { id: 7, title: "Buy milk", done: true },
-    { id: 8, title: "Call mom", done: false },
-    { id: 9, title: "Go to the gym", done: true },
-  ]);
-
+  //State variables
+  const [toDoList, setToDoList] = useState([]);
   const [selectedTab, setSelectedTab] = useState("All");
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
+  //Filters the list of tasks based on the selected tab
   function getFilteredToDoList() {
     switch (selectedTab) {
       case "Active":
@@ -30,6 +27,8 @@ export default function App() {
         return toDoList;
     }
   }
+
+  //Deletes a task from the list
   function deleteTodo(todoToDelete) {
     Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
       {
@@ -44,6 +43,7 @@ export default function App() {
     ]);
   }
 
+  //Renders the list of tasks
   function renderToDoList() {
     return getFilteredToDoList().map((todo) => (
       <View key={todo.id} style={s.cardItem}>
@@ -52,12 +52,51 @@ export default function App() {
     ));
   }
 
+  //Updates the list
   function updateToDoList(todo) {
     const updatedToDo = { ...todo, done: !todo.done };
     const updatedList = [...toDoList];
     const indexToUpdate = updatedList.findIndex((t) => t.id === updatedToDo.id);
     updatedList[indexToUpdate] = updatedToDo;
     setToDoList(updatedList);
+  }
+
+  //Adds a new task to the list
+  function addToDo() {
+    const newTodo = {
+      id: uuid.v4(),
+      title: inputValue,
+      done: false,
+    };
+    setToDoList([...toDoList, newTodo]);
+    setIsDialogVisible(false);
+    setInputValue("");
+  }
+
+  //Shows the dialog box to add a new task
+  function renderAddDialog() {
+    return (
+      <Dialog.Container
+        visible={isDialogVisible}
+        onBackdropPress={() => setIsDialogVisible(false)}
+      >
+        <Dialog.Title>Add A New Task</Dialog.Title>
+        <Dialog.Input
+          onChangeText={(text) => setInputValue(text)}
+          placeholder="Type task here"
+        />
+        <Dialog.Button
+          label="Cancel"
+          color="darkgrey"
+          onPress={() => setIsDialogVisible(false)}
+        />
+        <Dialog.Button
+          disabled={inputValue.length === 0}
+          label="Add"
+          onPress={addToDo}
+        />
+      </Dialog.Container>
+    );
   }
 
   return (
@@ -71,6 +110,7 @@ export default function App() {
           <View style={s.body}>
             <ScrollView>{renderToDoList()}</ScrollView>
           </View>
+          <AddButton onPress={() => setIsDialogVisible(true)} />
         </SafeAreaView>
       </SafeAreaProvider>
       <View style={s.footer}>
@@ -80,6 +120,8 @@ export default function App() {
           selectedTab={selectedTab}
         />
       </View>
+
+      {renderAddDialog()}
     </>
   );
 }

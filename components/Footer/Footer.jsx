@@ -9,6 +9,7 @@ export function Footer({ toDoList, selectedTab, onPress }) {
     };
   }, {});
 
+  //Returns the style for the text based on the selected tab
   function getTextStyle(tabName) {
     return {
       color: selectedTab === tabName ? "#2F76E5" : "black",
