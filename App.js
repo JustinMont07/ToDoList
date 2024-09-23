@@ -1,5 +1,5 @@
 import { ScrollView, Text, View, Alert } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { s } from "./App.style";
 import Dialog from "react-native-dialog";
@@ -18,6 +18,7 @@ export default function App() {
   const [selectedTab, setSelectedTab] = useState("All");
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const scrolleViewRef = useRef();
 
   //Load the toDoList from AsyncStorage
   useEffect(() => {
@@ -112,6 +113,9 @@ export default function App() {
     setToDoList([...toDoList, newTodo]);
     setIsDialogVisible(false);
     setInputValue("");
+    setTimeout(() => {
+      scrolleViewRef.current.scrollToEnd();
+    }, 300);
   }
 
   //Shows the dialog box to add a new task
@@ -149,7 +153,7 @@ export default function App() {
           </View>
 
           <View style={s.body}>
-            <ScrollView>{renderToDoList()}</ScrollView>
+            <ScrollView ref={scrolleViewRef}>{renderToDoList()}</ScrollView>
           </View>
           <AddButton onPress={() => setIsDialogVisible(true)} />
         </SafeAreaView>
